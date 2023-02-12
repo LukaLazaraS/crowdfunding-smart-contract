@@ -7,6 +7,8 @@ contract Crowdfunding {
     uint public immutable endTime;
     mapping(address => uint) public contributors;
 
+    event goalReached(bool);
+
     modifier isOwner() {
         require(msg.sender == owner, "You must be the Owner");
         _;
@@ -41,11 +43,13 @@ contract Crowdfunding {
     constructor(uint _goal, uint _durationInDays) {
         owner = msg.sender;
         goal = _goal;
-        endTime = block.timestamp + (_durationInDays * 1 days);
+        // endTime = block.timestamp + (_durationInDays * 1 days);
+        endTime = block.timestamp + (_durationInDays * 1 minutes);
     }
 
     function contribute() public payable isNotEnd isFundAmountValid {
         contributors[msg.sender] += msg.value;
+        if (address(this).balance >= goal) emit goalReached(true);
     }
 
     function getBalance() public view returns (uint) {
